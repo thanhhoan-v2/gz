@@ -1,11 +1,17 @@
 {
-  "name": "gz",
-  "version": "1.0.0",
+  "name": "@adrian_phan/gz",
+  "version": "1.0.1",
   "description": "Interactive Git workflow CLI tool",
   "type": "module",
-  "bin": {
-    "gz": "./dist/cli.js"
+  "bin": "dist/cli.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adrian-phan/gz.git"
   },
+  "bugs": {
+    "url": "https://github.com/adrian-phan/gz/issues"
+  },
+  "homepage": "https://github.com/adrian-phan/gz#readme",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
