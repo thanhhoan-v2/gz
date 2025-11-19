@@ -4,8 +4,23 @@
 
 ## Installation
 
+Clone the repository and install locally:
+
 ```bash
-npm install -g gz
+# Clone the repository
+git clone <repo-url>
+cd gz
+
+# Install dependencies
+npm install
+
+# Install globally from local directory
+npm install -g .
+```
+
+**Verification:**
+```bash
+gz --version  # Should show the installed version
 ```
 
 ## Usage
@@ -74,21 +89,16 @@ Move uncommitted changes to a different branch.
 
 ## Development
 
+After installation, use these commands for development:
+
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd gz
-
-# Install dependencies
-npm install
-
-# Build
+# Build the project
 npm run build
 
-# Test locally
+# Test locally without installing globally
 npm start
 
-# Install globally for testing
+# Reinstall globally after making changes
 npm install -g .
 ```
 
