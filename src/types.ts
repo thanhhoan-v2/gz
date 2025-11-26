@@ -2,6 +2,13 @@ export interface GitStatus {
   isRepo: boolean;
   hasUncommittedChanges: boolean;
   currentBranch: string;
+  uncommittedCount?: number;
+}
+
+export interface RepositoryInfo {
+  repoName: string;
+  currentBranch: string;
+  uncommittedCount: number;
 }
 
 export interface Branch {
@@ -23,7 +30,10 @@ export interface RecentBranchStore {
 
 export type CommandType =
   | 'start-feature'
-  | 'finish-feature'
+  | 'end-work'
   | 'switch-branch'
   | 'sync-remote'
-  | 'bring-changes';
+  | 'bring-changes'
+  | 'sync-claude-config'
+  | 'sync-personal-projects'
+  | 'commit-claude';

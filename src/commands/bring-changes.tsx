@@ -1,21 +1,29 @@
 import React, {useState, useEffect} from 'react';
-import {Box, Text, useApp} from 'ink';
+import {Box, Text, useApp, useInput} from 'ink';
 import TextInput from 'ink-text-input';
-import SelectInput from 'ink-select-input';
+import {CustomSelectInput} from '../components/CustomSelectInput.js';
 import fuzzy from 'fuzzy';
 import {Spinner} from '../components/Spinner.js';
 import {StatusMessage} from '../components/StatusMessage.js';
+import {Footer} from '../components/Footer.js';
 import * as git from '../utils/git.js';
 import type {Branch, MenuAction} from '../types.js';
+import { BRING_CHANGES_TITLE } from '../constants.js';
+import { Header } from '../components/Header.js';
 
 type Step =
   | 'check'
   | 'search'
+  | 'confirm-create'
   | 'executing'
   | 'done'
   | 'error';
 
-export function BringChanges() {
+interface BringChangesProps {
+  onBack?: () => void;
+}
+
+export function BringChanges({onBack}: BringChangesProps) {
   const {exit} = useApp();
   const [step, setStep] = useState<Step>('check');
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -23,7 +31,19 @@ export function BringChanges() {
   const [filteredBranches, setFilteredBranches] = useState<MenuAction[]>([]);
   const [targetBranch, setTargetBranch] = useState('');
   const [sourceBranch, setSourceBranch] = useState('');
+  const [needsCreation, setNeedsCreation] = useState(false);
   const [error, setError] = useState('');
+
+  // Handle Esc/Backspace to go back
+  useInput((input, key) => {
+    // Don't handle during loading/executing/done states
+    if (step === 'check' || step === 'executing' || step === 'done') return;
+
+    // Go back: Backspace or Escape
+    if ((key.backspace || key.escape) && onBack) {
+      onBack();
+    }
+  });
 
   // Initial checks
   useEffect(() => {
@@ -134,42 +154,55 @@ export function BringChanges() {
 
   if (step === 'search') {
     return (
-      <Box flexDirection="column">
-        <Box marginBottom={1}>
-          <Text bold color="cyan">
-            📦 Bring Changes to Another Branch
-          </Text>
-        </Box>
-        <Box marginBottom={1}>
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={BRING_CHANGES_TITLE} />
+        <Box marginBottom={1} alignItems='flex-start'>
           <Text dimColor>
             Source: <Text color="yellow">{sourceBranch}</Text>
           </Text>
         </Box>
-        <Box marginBottom={1}>
+        <Box marginBottom={1} alignItems='flex-start'>
           <Text>Search target branch: </Text>
           <TextInput
             value={searchQuery}
             onChange={setSearchQuery}
-            placeholder="Type to filter..."
+            placeholder="Type to filter or create new..."
+            onSubmit={(value) => {
+              if (value.trim()) {
+                setTargetBranch(value.trim());
+                const branchExists = branches.some((b) => b.name === value.trim());
+                if (branchExists) {
+                  setNeedsCreation(false);
+                  setStep('executing');
+                } else {
+                  setNeedsCreation(true);
+                  setStep('confirm-create');
+                }
+              }
+            }}
           />
         </Box>
         {filteredBranches.length > 0 ? (
-          <>
-            <SelectInput
+          <Box flexDirection="column" alignItems='flex-start'>
+            <CustomSelectInput
               items={filteredBranches}
               onSelect={(item) => {
                 setTargetBranch(item.value);
-                setStep('executing');
+                const branchExists = branches.some((b) => b.name === item.value);
+                if (branchExists) {
+                  setNeedsCreation(false);
+                  setStep('executing');
+                } else {
+                  setNeedsCreation(true);
+                  setStep('confirm-create');
+                }
               }}
+              onBack={onBack}
             />
-            <Box marginTop={1}>
-              <Text dimColor>
-                ↑↓ to navigate | Enter to select | Ctrl+C to cancel
-              </Text>
-            </Box>
-          </>
+            {/* <Footer navigation="↑↓/Ctrl+P/N/j/k to navigate | Enter to select/create" showBack={!!onBack} /> */}
+          </Box>
         ) : (
-          <Box marginTop={1}>
+          <Box marginTop={1} flexDirection="column" alignItems='flex-start'>
             <Text color="yellow">No branches match your search</Text>
           </Box>
         )}

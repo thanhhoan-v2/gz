@@ -6,11 +6,12 @@ An interactive terminal application for streamlined Git workflows, built with Re
 
 gz provides an intuitive, menu-driven interface for common Git operations:
 
-- **Start Feature**: Create feature branches from a base branch with automatic sync
-- **Finish Feature**: Clean up feature branches (local + remote) after merging
+- **Start Work**: Create feature branches from a base branch with automatic sync
+- **End Work**: Clean up feature branches (local + remote) after merging
 - **Switch Branch**: Quick branch switching with fuzzy search and recent history
 - **Sync Remote Branches**: Prune local branches deleted on remote ([gone])
 - **Bring Changes**: Move uncommitted changes between branches via stash
+- **Commit with Claude**: Interactive commit using Claude Code with customizable options (push after commit, bring changes to separate branch)
 
 ## Architecture
 
@@ -31,11 +32,12 @@ gz/
 ├── src/
 │   ├── cli.tsx                    # Main entry point & menu router
 │   ├── commands/                  # Command implementations
-│   │   ├── start-feature.tsx      # Start feature workflow
-│   │   ├── finish-feature.tsx     # Finish feature workflow
+│   │   ├── start-feature.tsx      # Start Work workflow
+│   │   ├── end-work.tsx     # End Work workflow
 │   │   ├── branch-switcher.tsx    # Branch switching with fuzzy search
 │   │   ├── sync-remote-branches.tsx
-│   │   └── bring-changes.tsx
+│   │   ├── bring-changes.tsx
+│   │   └── commit-claude.tsx      # Claude Code commit integration
 │   ├── components/                # Reusable UI components
 │   │   ├── Menu.tsx               # Main menu component
 │   │   ├── BranchInput.tsx        # Smart branch input
@@ -148,7 +150,7 @@ Update `src/types.ts`:
 ```typescript
 export type CommandType =
   | 'start-feature'
-  | 'finish-feature'
+  | 'end-work'
   | 'switch-branch'
   | 'sync-remote'
   | 'bring-changes'
@@ -267,32 +269,40 @@ const filtered = results.map(r => r.string);
 
 ```bash
 cd ~/personal-projects/gz
-npm install
+pnpm install
 ```
 
 ### Build
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 ### Test Locally
 
 ```bash
-npm start
+pnpm start
 ```
 
-### Install Globally
+### Build and Install Globally
+
+**Important**: After modifying any commands, you must rebuild and reinstall globally to test changes:
 
 ```bash
-npm install -g .
+pnpm run install-global
 ```
+
+This command will:
+1. Compile TypeScript to JavaScript (`pnpm run build`)
+2. Install the CLI globally (`npm install -g .`)
+
+Note: We use `npm` for global installation (not pnpm) to avoid pnpm global bin directory setup issues. Only if the build succeeds will the global installation proceed.
 
 ### Publish to npm
 
 ```bash
-npm login
-npm publish
+pnpm login
+pnpm publish
 ```
 
 ## Best Practices

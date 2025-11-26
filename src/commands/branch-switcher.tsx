@@ -1,18 +1,25 @@
-import React, {useState, useEffect} from 'react';
-import {Box, Text, useApp} from 'ink';
+import React, { useState, useEffect } from 'react';
+import { Box, Text, useApp, useInput } from 'ink';
 import TextInput from 'ink-text-input';
-import SelectInput from 'ink-select-input';
+import { CustomSelectInput } from '../components/CustomSelectInput.js';
 import fuzzy from 'fuzzy';
-import {Spinner} from '../components/Spinner.js';
-import {StatusMessage} from '../components/StatusMessage.js';
-import {getRecentBranches, addRecentBranch} from '../utils/recent-branches.js';
+import { Spinner } from '../components/Spinner.js';
+import { StatusMessage } from '../components/StatusMessage.js';
+import { Footer } from '../components/Footer.js';
+import { getRecentBranches, addRecentBranch } from '../utils/recent-branches.js';
 import * as git from '../utils/git.js';
-import type {Branch, MenuAction} from '../types.js';
+import type { Branch, MenuAction } from '../types.js';
+import { SWITCH_BRANCH_TITLE } from '../constants.js';
+import { Header } from '../components/Header.js';
 
 type Step = 'loading' | 'search' | 'executing' | 'done' | 'error';
 
-export function BranchSwitcher() {
-  const {exit} = useApp();
+interface BranchSwitcherProps {
+  onBack?: () => void;
+}
+
+export function BranchSwitcher({ onBack }: BranchSwitcherProps) {
+  const { exit } = useApp();
   const [step, setStep] = useState<Step>('loading');
   const [branches, setBranches] = useState<Branch[]>([]);
   const [recentBranches, setRecentBranches] = useState<string[]>([]);
@@ -21,6 +28,16 @@ export function BranchSwitcher() {
   const [selectedBranch, setSelectedBranch] = useState('');
   const [error, setError] = useState('');
   const [currentBranch, setCurrentBranch] = useState('');
+
+  // Handle Esc/Backspace during search
+  useInput((input, key) => {
+    if (step !== 'search') return;
+
+    // Go back: Backspace or Escape
+    if ((key.backspace || key.escape) && onBack) {
+      onBack();
+    }
+  });
 
   // Load branches
   useEffect(() => {
@@ -129,19 +146,15 @@ export function BranchSwitcher() {
 
   if (step === 'search') {
     return (
-      <Box flexDirection="column">
-        <Box marginBottom={1}>
-          <Text bold color="cyan">
-            🌿 Switch Branch
-          </Text>
-        </Box>
-        <Box marginBottom={1}>
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={SWITCH_BRANCH_TITLE} />
+        <Box marginBottom={1} alignItems='flex-start'>
           <Text dimColor>
             Current: <Text color="yellow">{currentBranch}</Text>
           </Text>
         </Box>
-        <Box marginBottom={1}>
-          <Text>Search: </Text>
+        <Box marginBottom={1} alignItems='flex-start'>
+          {/* <Text>Search: </Text> */}
           <TextInput
             value={searchQuery}
             onChange={setSearchQuery}
@@ -149,22 +162,19 @@ export function BranchSwitcher() {
           />
         </Box>
         {filteredBranches.length > 0 ? (
-          <>
-            <SelectInput
+          <Box flexDirection="column" alignItems='flex-start'>
+            <CustomSelectInput
               items={filteredBranches}
               onSelect={(item) => {
                 setSelectedBranch(item.value);
                 setStep('executing');
               }}
+              onBack={onBack}
             />
-            <Box marginTop={1}>
-              <Text dimColor>
-                ★ = Recent | ↑↓ to navigate | Enter to select | Ctrl+C to cancel
-              </Text>
-            </Box>
-          </>
+            {/* <Footer showBack={!!onBack} additional="★ = Recent" /> */}
+          </Box>
         ) : (
-          <Box marginTop={1}>
+          <Box marginTop={1} flexDirection="column" alignItems='flex-start'>
             <Text color="yellow">No branches match your search</Text>
           </Box>
         )}

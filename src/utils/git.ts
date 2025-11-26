@@ -184,3 +184,18 @@ export async function getRepoName(): Promise<string> {
   const match = url.match(/[:/]([^/]+?)(?:\.git)?$/);
   return match ? match[1] : '';
 }
+
+/**
+ * Get count of uncommitted changes (staged + unstaged)
+ */
+export async function getUncommittedChangesCount(): Promise<number> {
+  try {
+    const status = await execGit(['status', '--porcelain']);
+    if (!status) return 0;
+
+    // Each line in --porcelain output represents a changed file
+    return status.split('\n').filter(line => line.trim()).length;
+  } catch {
+    return 0;
+  }
+}

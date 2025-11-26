@@ -5,10 +5,16 @@ import {Spinner} from '../components/Spinner.js';
 import {StatusMessage} from '../components/StatusMessage.js';
 import {detectBaseBranch} from '../utils/branch-detector.js';
 import * as git from '../utils/git.js';
+import { END_WORK_TITLE } from '../constants.js';
+import { Header } from '../components/Header.js';
 
 type Step = 'check' | 'confirm' | 'base-input' | 'executing' | 'done' | 'error';
 
-export function FinishFeature() {
+interface EndWorkProps {
+  onBack?: () => void;
+}
+
+export function EndWork({onBack}: EndWorkProps) {
   const {exit} = useApp();
   const [step, setStep] = useState<Step>('check');
   const [currentBranch, setCurrentBranch] = useState('');
@@ -17,14 +23,23 @@ export function FinishFeature() {
   const [error, setError] = useState('');
   const [remoteDeleted, setRemoteDeleted] = useState(false);
 
-  // Confirmation input
-  useInput((input) => {
-    if (step !== 'confirm') return;
+  // Handle input and Esc/Backspace
+  useInput((input, key) => {
+    // Don't handle during loading/executing/done states
+    if (step === 'check' || step === 'executing' || step === 'done') return;
 
-    if (input === 'y' || input === 'Y') {
-      setStep('base-input');
-    } else if (input === 'n' || input === 'N') {
-      exit();
+    // Confirmation input
+    if (step === 'confirm') {
+      if (input === 'y' || input === 'Y') {
+        setStep('base-input');
+      } else if (input === 'n' || input === 'N') {
+        exit();
+      }
+    }
+
+    // Go back: Backspace or Escape
+    if ((key.backspace || key.escape) && onBack) {
+      onBack();
     }
   });
 
@@ -104,15 +119,17 @@ export function FinishFeature() {
 
   if (step === 'check') {
     return (
-      <Box flexDirection="column">
-        <Spinner label="Checking repository status..." />
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={END_WORK_TITLE} />
+        <Spinner label="Checking feature branch status..." />
       </Box>
     );
   }
 
   if (step === 'error') {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={END_WORK_TITLE} />
         <StatusMessage type="error" message={error} />
       </Box>
     );
@@ -120,34 +137,32 @@ export function FinishFeature() {
 
   if (step === 'confirm') {
     return (
-      <Box flexDirection="column">
-        <Box marginBottom={1}>
-          <Text bold color="cyan">
-            🏁 Finish Feature Branch
-          </Text>
-        </Box>
-        <Box marginBottom={1}>
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={END_WORK_TITLE} />
+        <Box marginBottom={1} alignItems='flex-start'>
           <Text>
             Current branch: <Text color="yellow" bold>{currentBranch}</Text>
           </Text>
         </Box>
-        <Box marginBottom={1}>
+        <Box marginBottom={1} alignItems='flex-start'>
           <Text color="red">
             This will delete the branch locally and remotely (if exists).
           </Text>
         </Box>
-        <Box>
+        <Box marginBottom={1} alignItems='flex-start'>
           <Text>
             Are you sure? <Text color="green">(y/n)</Text>
           </Text>
         </Box>
+        {/* <Footer navigation="" showBack={!!onBack} /> */}
       </Box>
     );
   }
 
   if (step === 'base-input') {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={END_WORK_TITLE} />
         <BranchInput
           label="Base branch to return to:"
           detectedBranch={detectedBase}
@@ -162,12 +177,13 @@ export function FinishFeature() {
 
   if (step === 'executing') {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={END_WORK_TITLE} />
         <Spinner label="Finishing feature branch..." />
-        <Box marginTop={1}>
+        <Box marginTop={1} alignItems='flex-start'>
           <Text dimColor>Deleting: {currentBranch}</Text>
         </Box>
-        <Box>
+        <Box alignItems='flex-start'>
           <Text dimColor>Returning to: {baseBranch}</Text>
         </Box>
       </Box>
@@ -176,7 +192,8 @@ export function FinishFeature() {
 
   // step === 'done'
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" alignItems='center'>
+      <Header title={END_WORK_TITLE} />
       <StatusMessage
         type="success"
         message="Feature branch workflow complete!"

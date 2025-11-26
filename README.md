@@ -33,7 +33,7 @@ gz
 
 You'll see an interactive menu with the following options:
 
-### 🚀 Start Feature
+### 🚀 Start Work
 
 Create a new feature branch from a base branch (develop/main/master).
 
@@ -41,7 +41,7 @@ Create a new feature branch from a base branch (develop/main/master).
 - Fetches latest changes from remote
 - Creates and switches to your new feature branch
 
-### 🏁 Finish Feature
+### 🏁 End Work
 
 Clean up after merging your feature branch.
 
@@ -81,6 +81,17 @@ Move uncommitted changes to a different branch.
 - 🔐 **Safety checks** - Prevents dangerous operations
 - ⚡ **Fast** - Optimized git operations
 - 🎨 **Beautiful UI** - Clean terminal interface
+- ⌨️ **Multiple navigation styles** - Arrow keys, Ctrl+P/N, or vim (j/k)
+
+### Keyboard Shortcuts
+
+Navigate through menus using any of these:
+
+- **Arrow keys**: `↑` / `↓` - Traditional navigation
+- **Ctrl shortcuts**: `Ctrl+P` (previous) / `Ctrl+N` (next) - Terminal standard
+- **Vim style**: `j` (down) / `k` (up) - For vim enthusiasts
+- **Select**: `Enter` or `Space`
+- **Exit**: `Ctrl+C`
 
 ## Requirements
 
@@ -97,9 +108,23 @@ npm run build
 
 # Test locally without installing globally
 npm start
+```
 
-# Reinstall globally after making changes
+### Updating Global Installation
+
+After making changes, update your global installation:
+
+```bash
+# If you get EEXIST errors, remove the old symlink first
+rm /opt/homebrew/bin/gz  # or wherever your global npm bin is located
+
+# Then install the updated version
 npm install -g .
+```
+
+**Quick update command:**
+```bash
+rm $(which gz) 2>/dev/null; npm install -g .
 ```
 
 ## Examples
@@ -108,7 +133,7 @@ npm install -g .
 
 ```bash
 gz
-# Select "🚀 Start Feature"
+# Select "🚀 Start Work"
 # Enter branch name: "feature/user-auth"
 # Press Enter to use detected base (develop)
 # Done! ✅
@@ -118,7 +143,7 @@ gz
 
 ```bash
 gz
-# Select "🏁 Finish Feature"
+# Select "🏁 End Work"
 # Confirm deletion (y/n): y
 # Press Enter to use detected base (develop)
 # Done! Branch deleted locally and remotely ✅

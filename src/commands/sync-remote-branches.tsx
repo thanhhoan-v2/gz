@@ -1,27 +1,42 @@
-import React, {useState, useEffect} from 'react';
-import {Box, Text, useApp, useInput} from 'ink';
-import {Spinner} from '../components/Spinner.js';
-import {StatusMessage} from '../components/StatusMessage.js';
+import React, { useState, useEffect } from 'react';
+import { Box, Text, useApp, useInput } from 'ink';
+import { Spinner } from '../components/Spinner.js';
+import { StatusMessage } from '../components/StatusMessage.js';
 import * as git from '../utils/git.js';
-import type {Branch} from '../types.js';
+import type { Branch } from '../types.js';
+import { SYNC_REMOTE_BRANCHES_TITLE } from '../constants.js';
+import { Header } from '../components/Header.js';
 
 type Step = 'loading' | 'confirm' | 'executing' | 'done' | 'error';
 
-export function SyncRemoteBranches() {
-  const {exit} = useApp();
+interface SyncRemoteBranchesProps {
+  onBack?: () => void;
+}
+
+export function SyncRemoteBranches({ onBack }: SyncRemoteBranchesProps) {
+  const { exit } = useApp();
   const [step, setStep] = useState<Step>('loading');
   const [goneBranches, setGoneBranches] = useState<Branch[]>([]);
   const [deletedCount, setDeletedCount] = useState(0);
   const [error, setError] = useState('');
 
-  // Confirmation input
-  useInput((input) => {
-    if (step !== 'confirm') return;
+  // Handle input and Esc/Backspace
+  useInput((input, key) => {
+    // Don't handle during loading/executing/done states
+    if (step === 'loading' || step === 'executing' || step === 'done') return;
 
-    if (input === 'y' || input === 'Y') {
-      setStep('executing');
-    } else if (input === 'n' || input === 'N') {
-      exit();
+    // Confirmation input
+    if (step === 'confirm') {
+      if (input === 'y' || input === 'Y') {
+        setStep('executing');
+      } else if (input === 'n' || input === 'N') {
+        exit();
+      }
+    }
+
+    // Go back: Backspace or Escape
+    if ((key.backspace || key.escape) && onBack) {
+      onBack();
     }
   });
 
@@ -91,7 +106,8 @@ export function SyncRemoteBranches() {
 
   if (step === 'loading') {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={SYNC_REMOTE_BRANCHES_TITLE} />
         <Spinner label="Checking for deleted remote branches..." />
       </Box>
     );
@@ -99,7 +115,8 @@ export function SyncRemoteBranches() {
 
   if (step === 'error') {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={SYNC_REMOTE_BRANCHES_TITLE} />
         <StatusMessage type="error" message={error} />
       </Box>
     );
@@ -107,42 +124,40 @@ export function SyncRemoteBranches() {
 
   if (step === 'confirm') {
     return (
-      <Box flexDirection="column">
-        <Box marginBottom={1}>
-          <Text bold color="cyan">
-            🔄 Sync Remote Branches
-          </Text>
-        </Box>
-        <Box marginBottom={1}>
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={SYNC_REMOTE_BRANCHES_TITLE} />
+        <Box marginBottom={1} alignItems='flex-start'>
           <Text>
             Found <Text color="yellow" bold>{goneBranches.length}</Text> local branches
             that have been deleted on remote:
           </Text>
         </Box>
-        <Box flexDirection="column" marginBottom={1} paddingLeft={2}>
+        <Box flexDirection="column" marginBottom={1} paddingLeft={2} alignItems='flex-start'>
           {goneBranches.map((branch, i) => (
             <Text key={i} color="red">
               • {branch.name}
             </Text>
           ))}
         </Box>
-        <Box marginBottom={1}>
+        <Box marginBottom={1} alignItems='flex-start'>
           <Text color="red">These branches will be deleted locally.</Text>
         </Box>
-        <Box>
+        <Box marginBottom={1} alignItems='flex-start'>
           <Text>
             Proceed? <Text color="green">(y/n)</Text>
           </Text>
         </Box>
+        {/* <Footer navigation="" showBack={!!onBack} /> */}
       </Box>
     );
   }
 
   if (step === 'executing') {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={SYNC_REMOTE_BRANCHES_TITLE} />
         <Spinner label="Deleting local branches..." />
-        <Box marginTop={1}>
+        <Box marginTop={1} alignItems='flex-start'>
           <Text dimColor>Deleting {goneBranches.length} branches...</Text>
         </Box>
       </Box>
@@ -151,7 +166,8 @@ export function SyncRemoteBranches() {
 
   // step === 'done'
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" alignItems='center'>
+      <Header title={SYNC_REMOTE_BRANCHES_TITLE} />
       <StatusMessage
         type="success"
         message="Remote branches synced!"

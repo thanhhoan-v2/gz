@@ -1,21 +1,38 @@
-import React, {useState, useEffect} from 'react';
-import {Box, Text, useApp} from 'ink';
+import React, { useState, useEffect } from 'react';
+import { Box, Text, useApp, useInput } from 'ink';
 import TextInput from 'ink-text-input';
-import {BranchInput} from '../components/BranchInput.js';
-import {Spinner} from '../components/Spinner.js';
-import {StatusMessage} from '../components/StatusMessage.js';
-import {detectBaseBranch} from '../utils/branch-detector.js';
+import { BranchInput } from '../components/BranchInput.js';
+import { Spinner } from '../components/Spinner.js';
+import { StatusMessage } from '../components/StatusMessage.js';
+import { detectBaseBranch } from '../utils/branch-detector.js';
 import * as git from '../utils/git.js';
+import { START_WORK_TITLE } from '../constants.js';
+import { Header } from '../components/Header.js';
 
 type Step = 'check' | 'branch-input' | 'base-input' | 'executing' | 'done' | 'error';
 
-export function StartFeature() {
-  const {exit} = useApp();
+interface StartWorkProps {
+  onBack?: () => void;
+}
+
+export function StartWork({ onBack }: StartWorkProps) {
+  const { exit } = useApp();
   const [step, setStep] = useState<Step>('check');
   const [branchName, setBranchName] = useState('');
   const [baseBranch, setBaseBranch] = useState('');
   const [detectedBase, setDetectedBase] = useState('');
   const [error, setError] = useState('');
+
+  // Handle Esc/Backspace to go back
+  useInput((input, key) => {
+    // Don't handle during loading/executing/done states
+    if (step === 'check' || step === 'executing' || step === 'done') return;
+
+    // Go back: Backspace or Escape
+    if ((key.backspace || key.escape) && onBack) {
+      onBack();
+    }
+  });
 
   // Initial checks
   useEffect(() => {
@@ -85,7 +102,8 @@ export function StartFeature() {
 
   if (step === 'error') {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={START_WORK_TITLE} />
         <StatusMessage type="error" message={error} />
       </Box>
     );
@@ -94,12 +112,8 @@ export function StartFeature() {
   if (step === 'branch-input') {
     return (
       <Box flexDirection="column">
-        <Box marginBottom={1}>
-          <Text bold color="cyan">
-            🚀 Start Feature Branch
-          </Text>
-        </Box>
-        <Box>
+        <Header title={START_WORK_TITLE} />
+        <Box marginBottom={1} alignItems='flex-start'>
           <Text color="green">Branch name: </Text>
           <TextInput
             value={branchName}
@@ -118,7 +132,8 @@ export function StartFeature() {
 
   if (step === 'base-input') {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={START_WORK_TITLE} />
         <BranchInput
           label="Base branch:"
           detectedBranch={detectedBase}
@@ -133,12 +148,13 @@ export function StartFeature() {
 
   if (step === 'executing') {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection="column" alignItems='center'>
+        <Header title={START_WORK_TITLE} />
         <Spinner label="Creating feature branch..." />
-        <Box marginTop={1}>
+        <Box marginTop={1} alignItems='flex-start'>
           <Text dimColor>Branch: {branchName}</Text>
         </Box>
-        <Box>
+        <Box alignItems='flex-start'>
           <Text dimColor>Base: {baseBranch}</Text>
         </Box>
       </Box>
@@ -147,7 +163,8 @@ export function StartFeature() {
 
   // step === 'done'
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" alignItems='center'>
+      <Header title={START_WORK_TITLE} />
       <StatusMessage
         type="success"
         message="Feature branch created successfully!"
