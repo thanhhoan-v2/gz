@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 import React, { useState, useEffect } from 'react';
 import { render, Box, Text } from 'ink';
-import { Menu } from './components/Menu.js';
-import { RepositoryInfo } from './components/RepositoryInfo.js';
+import { Menu } from './components/menu.js';
 import { StartWork } from './commands/start-work.js';
 import { EndWork } from './commands/end-work.js';
 import { BranchSwitcher } from './commands/branch-switcher.js';
@@ -14,7 +13,7 @@ import { CommitClaude } from './commands/commit-claude.js';
 import * as git from './utils/git.js';
 import type { MenuAction, CommandType } from './types.js';
 import { MENU_ITEMS } from './constants.js';
-import { Header } from './components/Header.js';
+import { Header } from './components/header.js';
 
 function App() {
   const [selectedCommand, setSelectedCommand] = useState<CommandType | null>(null);

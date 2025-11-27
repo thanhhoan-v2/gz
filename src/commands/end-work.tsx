@@ -1,12 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import {Box, Text, useApp, useInput} from 'ink';
-import {BranchInput} from '../components/BranchInput.js';
-import {Spinner} from '../components/Spinner.js';
-import {StatusMessage} from '../components/StatusMessage.js';
+import {BranchInput} from '../components/branch-input.js';
+import {Spinner} from '../components/spinner.js';
+import {StatusMessage} from '../components/status-message.js';
+import {CommandLayout} from '../components/command-layout.js';
 import {detectBaseBranch} from '../utils/branch-detector.js';
 import * as git from '../utils/git.js';
 import { END_WORK_TITLE } from '../constants.js';
-import { Header } from '../components/Header.js';
 
 type Step = 'check' | 'confirm' | 'base-input' | 'executing' | 'done' | 'error';
 
@@ -119,26 +119,23 @@ export function EndWork({onBack}: EndWorkProps) {
 
   if (step === 'check') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={END_WORK_TITLE} />
+      <CommandLayout title={END_WORK_TITLE}>
         <Spinner label="Checking feature branch status..." />
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'error') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={END_WORK_TITLE} />
+      <CommandLayout title={END_WORK_TITLE}>
         <StatusMessage type="error" message={error} />
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'confirm') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={END_WORK_TITLE} />
+      <CommandLayout title={END_WORK_TITLE}>
         <Box marginBottom={1} alignItems='flex-start'>
           <Text>
             Current branch: <Text color="yellow" bold>{currentBranch}</Text>
@@ -154,15 +151,13 @@ export function EndWork({onBack}: EndWorkProps) {
             Are you sure? <Text color="green">(y/n)</Text>
           </Text>
         </Box>
-        {/* <Footer navigation="" showBack={!!onBack} /> */}
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'base-input') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={END_WORK_TITLE} />
+      <CommandLayout title={END_WORK_TITLE}>
         <BranchInput
           label="Base branch to return to:"
           detectedBranch={detectedBase}
@@ -171,14 +166,13 @@ export function EndWork({onBack}: EndWorkProps) {
             setStep('executing');
           }}
         />
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'executing') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={END_WORK_TITLE} />
+      <CommandLayout title={END_WORK_TITLE}>
         <Spinner label="Finishing feature branch..." />
         <Box marginTop={1} alignItems='flex-start'>
           <Text dimColor>Deleting: {currentBranch}</Text>
@@ -186,14 +180,13 @@ export function EndWork({onBack}: EndWorkProps) {
         <Box alignItems='flex-start'>
           <Text dimColor>Returning to: {baseBranch}</Text>
         </Box>
-      </Box>
+      </CommandLayout>
     );
   }
 
   // step === 'done'
   return (
-    <Box flexDirection="column" alignItems='center'>
-      <Header title={END_WORK_TITLE} />
+    <CommandLayout title={END_WORK_TITLE}>
       <StatusMessage
         type="success"
         message="Feature branch workflow complete!"
@@ -205,6 +198,6 @@ export function EndWork({onBack}: EndWorkProps) {
           `Now on ${baseBranch} with latest changes`,
         ]}
       />
-    </Box>
+    </CommandLayout>
   );
 }

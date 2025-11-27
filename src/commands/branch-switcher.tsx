@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, useApp, useInput } from 'ink';
 import TextInput from 'ink-text-input';
-import { CustomSelectInput } from '../components/CustomSelectInput.js';
+import { CustomSelectInput } from '../components/custom-select-input.js';
 import fuzzy from 'fuzzy';
-import { Spinner } from '../components/Spinner.js';
-import { StatusMessage } from '../components/StatusMessage.js';
-import { Footer } from '../components/Footer.js';
+import { Spinner } from '../components/spinner.js';
+import { StatusMessage } from '../components/status-message.js';
+import { CommandLayout } from '../components/command-layout.js';
 import { getRecentBranches, addRecentBranch } from '../utils/recent-branches.js';
 import * as git from '../utils/git.js';
 import type { Branch, MenuAction } from '../types.js';
 import { SWITCH_BRANCH_TITLE } from '../constants.js';
-import { Header } from '../components/Header.js';
 
 type Step = 'loading' | 'search' | 'executing' | 'done' | 'error';
 
@@ -146,15 +145,13 @@ export function BranchSwitcher({ onBack }: BranchSwitcherProps) {
 
   if (step === 'search') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={SWITCH_BRANCH_TITLE} />
+      <CommandLayout title={SWITCH_BRANCH_TITLE}>
         <Box marginBottom={1} alignItems='flex-start'>
           <Text dimColor>
             Current: <Text color="yellow">{currentBranch}</Text>
           </Text>
         </Box>
         <Box marginBottom={1} alignItems='flex-start'>
-          {/* <Text>Search: </Text> */}
           <TextInput
             value={searchQuery}
             onChange={setSearchQuery}
@@ -171,14 +168,13 @@ export function BranchSwitcher({ onBack }: BranchSwitcherProps) {
               }}
               onBack={onBack}
             />
-            {/* <Footer showBack={!!onBack} additional="★ = Recent" /> */}
           </Box>
         ) : (
           <Box marginTop={1} flexDirection="column" alignItems='flex-start'>
             <Text color="yellow">No branches match your search</Text>
           </Box>
         )}
-      </Box>
+      </CommandLayout>
     );
   }
 

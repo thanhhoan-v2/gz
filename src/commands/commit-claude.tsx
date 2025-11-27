@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, useInput, useApp } from 'ink';
 import { execa } from 'execa';
-import { Spinner } from '../components/Spinner.js';
-import { StatusMessage } from '../components/StatusMessage.js';
-import { Footer } from '../components/Footer.js';
+import { Spinner } from '../components/spinner.js';
+import { StatusMessage } from '../components/status-message.js';
+import { CommandLayout } from '../components/command-layout.js';
 import { COMMIT_CLAUDE_TITLE } from '../constants.js';
-import { Header } from '../components/Header.js';
 
 type Step = 'check' | 'options' | 'executing' | 'done' | 'error';
 
@@ -160,13 +159,7 @@ export function CommitClaude({ onBack }: CommitClaudeProps) {
 
   if (step === 'options') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        {/* <Box marginBottom={1}>
-          <Text bold color="cyan">
-            {COMMIT_CLAUDE_TITLE}
-          </Text>
-        </Box> */}
-        <Header title={COMMIT_CLAUDE_TITLE} />
+      <CommandLayout title={COMMIT_CLAUDE_TITLE}>
         <Box marginBottom={1}>
           <Text dimColor>Space to select | Enter to continue</Text>
         </Box>
@@ -188,24 +181,13 @@ export function CommitClaude({ onBack }: CommitClaudeProps) {
           })}
         </Box>
 
-        {/* Continue option */}
-        {/* <Box marginTop={1} marginLeft={1}>
-          <Text color={highlightIndex === commitOptions.length ? 'cyan' : undefined}>
-            {highlightIndex === commitOptions.length ? '› ' : '  '}
-            Continue
-          </Text>
-        </Box> */}
-
-        {/* Help text */}
-        {/* <Footer showBack={!!onBack} /> */}
-
         {/* Show selected options description */}
         {highlightIndex < commitOptions.length && (
           <Box marginTop={1} paddingX={2} flexDirection="column">
             <Text dimColor>{commitOptions[highlightIndex].description}</Text>
           </Box>
         )}
-      </Box>
+      </CommandLayout>
     );
   }
 

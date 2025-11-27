@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, useApp, useInput } from 'ink';
-import { Spinner } from '../components/Spinner.js';
-import { StatusMessage } from '../components/StatusMessage.js';
+import { Spinner } from '../components/spinner.js';
+import { StatusMessage } from '../components/status-message.js';
+import { CommandLayout } from '../components/command-layout.js';
 import * as git from '../utils/git.js';
 import type { Branch } from '../types.js';
 import { SYNC_REMOTE_BRANCHES_TITLE } from '../constants.js';
-import { Header } from '../components/Header.js';
 
 type Step = 'loading' | 'confirm' | 'executing' | 'done' | 'error';
 
@@ -106,26 +106,23 @@ export function SyncRemoteBranches({ onBack }: SyncRemoteBranchesProps) {
 
   if (step === 'loading') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={SYNC_REMOTE_BRANCHES_TITLE} />
+      <CommandLayout title={SYNC_REMOTE_BRANCHES_TITLE}>
         <Spinner label="Checking for deleted remote branches..." />
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'error') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={SYNC_REMOTE_BRANCHES_TITLE} />
+      <CommandLayout title={SYNC_REMOTE_BRANCHES_TITLE}>
         <StatusMessage type="error" message={error} />
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'confirm') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={SYNC_REMOTE_BRANCHES_TITLE} />
+      <CommandLayout title={SYNC_REMOTE_BRANCHES_TITLE}>
         <Box marginBottom={1} alignItems='flex-start'>
           <Text>
             Found <Text color="yellow" bold>{goneBranches.length}</Text> local branches
@@ -147,27 +144,24 @@ export function SyncRemoteBranches({ onBack }: SyncRemoteBranchesProps) {
             Proceed? <Text color="green">(y/n)</Text>
           </Text>
         </Box>
-        {/* <Footer navigation="" showBack={!!onBack} /> */}
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'executing') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={SYNC_REMOTE_BRANCHES_TITLE} />
+      <CommandLayout title={SYNC_REMOTE_BRANCHES_TITLE}>
         <Spinner label="Deleting local branches..." />
         <Box marginTop={1} alignItems='flex-start'>
           <Text dimColor>Deleting {goneBranches.length} branches...</Text>
         </Box>
-      </Box>
+      </CommandLayout>
     );
   }
 
   // step === 'done'
   return (
-    <Box flexDirection="column" alignItems='center'>
-      <Header title={SYNC_REMOTE_BRANCHES_TITLE} />
+    <CommandLayout title={SYNC_REMOTE_BRANCHES_TITLE}>
       <StatusMessage
         type="success"
         message="Remote branches synced!"
@@ -176,6 +170,6 @@ export function SyncRemoteBranches({ onBack }: SyncRemoteBranchesProps) {
           'Your local repository is now in sync with remote',
         ]}
       />
-    </Box>
+    </CommandLayout>
   );
 }

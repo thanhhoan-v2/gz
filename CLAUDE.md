@@ -63,6 +63,14 @@ gz/
 4. **Smart defaults**: Auto-detect base branches, show recent branches first
 5. **Confirmation for destructive actions**: Ask before deleting branches or making irreversible changes
 
+### Naming Conventions
+
+**File Naming**: All files must use kebab-case (lowercase with hyphens) format:
+- ✓ Correct: `my-command.tsx`, `branch-detector.ts`, `status-message.tsx`
+- ✗ Wrong: `MyCommand.tsx`, `branchDetector.ts`, `StatusMessage.tsx`
+
+This convention applies to all new files created in the codebase, including commands, components, utilities, and types.
+
 ## Adding New Commands
 
 ### Step 1: Create Command Component

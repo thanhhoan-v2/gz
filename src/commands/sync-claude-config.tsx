@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, useApp } from 'ink';
 import { execa } from 'execa';
-import { CustomSelectInput } from '../components/CustomSelectInput.js';
-import { Spinner } from '../components/Spinner.js';
-import { StatusMessage } from '../components/StatusMessage.js';
+import { CustomSelectInput } from '../components/custom-select-input.js';
+import { Spinner } from '../components/spinner.js';
+import { StatusMessage } from '../components/status-message.js';
+import { CommandLayout } from '../components/command-layout.js';
 import type { MenuAction } from '../types.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import os from 'os';
 import { SYNC_CLAUDE_CONFIG_TITLE } from '../constants.js';
-import { Header } from '../components/Header.js';
 
 type Step = 'select' | 'confirm' | 'executing' | 'done' | 'error';
 
@@ -117,8 +117,7 @@ export function SyncClaudeConfig({ onBack }: SyncClaudeConfigProps) {
 
   if (step === 'select') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={SYNC_CLAUDE_CONFIG_TITLE} />
+      <CommandLayout title={SYNC_CLAUDE_CONFIG_TITLE}>
         <Box marginBottom={1} alignItems='flex-start'>
           <Text dimColor>Select sync direction:</Text>
         </Box>
@@ -133,7 +132,7 @@ export function SyncClaudeConfig({ onBack }: SyncClaudeConfigProps) {
           }}
           onBack={onBack}
         />
-      </Box>
+      </CommandLayout>
     );
   }
 

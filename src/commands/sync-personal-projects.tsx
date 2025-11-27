@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, useInput, useApp } from 'ink';
 import { execa } from 'execa';
-import { Spinner } from '../components/Spinner.js';
-import { StatusMessage } from '../components/StatusMessage.js';
+import { Spinner } from '../components/spinner.js';
+import { StatusMessage } from '../components/status-message.js';
+import { CommandLayout } from '../components/command-layout.js';
 import { SYNC_PERSONAL_PROJECTS_TITLE } from '../constants.js';
-import { Header } from '../components/Header.js';
+
 type Step = 'check-auth' | 'switch-user' | 'confirm' | 'executing' | 'done' | 'error';
 
 interface SyncPersonalProjectsProps {
@@ -216,17 +217,15 @@ export function SyncPersonalProjects({ onBack }: SyncPersonalProjectsProps) {
 
   if (step === 'check-auth') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={SYNC_PERSONAL_PROJECTS_TITLE} />
+      <CommandLayout title={SYNC_PERSONAL_PROJECTS_TITLE}>
         <Spinner label="Checking GitHub authentication..." />
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'switch-user') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={SYNC_PERSONAL_PROJECTS_TITLE} />
+      <CommandLayout title={SYNC_PERSONAL_PROJECTS_TITLE}>
         <Box marginBottom={1} alignItems='flex-start'>
           <Text>Current GitHub user: {currentUser}</Text>
         </Box>
@@ -236,14 +235,13 @@ export function SyncPersonalProjects({ onBack }: SyncPersonalProjectsProps) {
         <Box marginTop={1} alignItems='flex-start'>
           <Text>Switch to personal account? (y/n)</Text>
         </Box>
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'confirm') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={SYNC_PERSONAL_PROJECTS_TITLE} />
+      <CommandLayout title={SYNC_PERSONAL_PROJECTS_TITLE}>
         <Box marginBottom={1} alignItems='flex-start'>
           <Text>This will sync all your personal repositories:</Text>
         </Box>
@@ -264,14 +262,13 @@ export function SyncPersonalProjects({ onBack }: SyncPersonalProjectsProps) {
         <Box marginTop={1} alignItems='flex-start'>
           <Text>Continue? (y/n)</Text>
         </Box>
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'error') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={SYNC_PERSONAL_PROJECTS_TITLE} />
+      <CommandLayout title={SYNC_PERSONAL_PROJECTS_TITLE}>
         <StatusMessage type="error" message={error} />
         {output.length > 0 && (
           <Box flexDirection="column" marginTop={1} alignItems='flex-start'>
@@ -283,14 +280,13 @@ export function SyncPersonalProjects({ onBack }: SyncPersonalProjectsProps) {
             ))}
           </Box>
         )}
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'executing') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={SYNC_PERSONAL_PROJECTS_TITLE} />
+      <CommandLayout title={SYNC_PERSONAL_PROJECTS_TITLE}>
         <Spinner label="Syncing personal projects..." />
         {output.length > 0 && (
           <Box flexDirection="column" marginTop={1} alignItems='flex-start'>
@@ -299,15 +295,14 @@ export function SyncPersonalProjects({ onBack }: SyncPersonalProjectsProps) {
             ))}
           </Box>
         )}
-      </Box>
+      </CommandLayout>
     );
   }
 
   // step === 'done'
   return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={SYNC_PERSONAL_PROJECTS_TITLE} />
-        <StatusMessage type="success" message="All personal projects synced!" />
+    <CommandLayout title={SYNC_PERSONAL_PROJECTS_TITLE}>
+      <StatusMessage type="success" message="All personal projects synced!" />
       {output.length > 0 && (
         <Box flexDirection="column" marginTop={1} borderStyle="round" padding={1} alignItems='flex-start'>
           {output.map((line, i) => (
@@ -315,6 +310,6 @@ export function SyncPersonalProjects({ onBack }: SyncPersonalProjectsProps) {
           ))}
         </Box>
       )}
-    </Box>
+    </CommandLayout>
   );
 }

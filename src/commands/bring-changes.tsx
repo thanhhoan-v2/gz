@@ -1,15 +1,14 @@
 import React, {useState, useEffect} from 'react';
 import {Box, Text, useApp, useInput} from 'ink';
 import TextInput from 'ink-text-input';
-import {CustomSelectInput} from '../components/CustomSelectInput.js';
+import {CustomSelectInput} from '../components/custom-select-input.js';
 import fuzzy from 'fuzzy';
-import {Spinner} from '../components/Spinner.js';
-import {StatusMessage} from '../components/StatusMessage.js';
-import {Footer} from '../components/Footer.js';
+import {Spinner} from '../components/spinner.js';
+import {StatusMessage} from '../components/status-message.js';
+import {CommandLayout} from '../components/command-layout.js';
 import * as git from '../utils/git.js';
 import type {Branch, MenuAction} from '../types.js';
 import { BRING_CHANGES_TITLE } from '../constants.js';
-import { Header } from '../components/Header.js';
 
 type Step =
   | 'check'
@@ -154,8 +153,7 @@ export function BringChanges({onBack}: BringChangesProps) {
 
   if (step === 'search') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={BRING_CHANGES_TITLE} />
+      <CommandLayout title={BRING_CHANGES_TITLE}>
         <Box marginBottom={1} alignItems='flex-start'>
           <Text dimColor>
             Source: <Text color="yellow">{sourceBranch}</Text>
@@ -199,14 +197,13 @@ export function BringChanges({onBack}: BringChangesProps) {
               }}
               onBack={onBack}
             />
-            {/* <Footer navigation="↑↓/Ctrl+P/N/j/k to navigate | Enter to select/create" showBack={!!onBack} /> */}
           </Box>
         ) : (
           <Box marginTop={1} flexDirection="column" alignItems='flex-start'>
             <Text color="yellow">No branches match your search</Text>
           </Box>
         )}
-      </Box>
+      </CommandLayout>
     );
   }
 

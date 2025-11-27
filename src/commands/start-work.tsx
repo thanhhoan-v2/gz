@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, useApp, useInput } from 'ink';
 import TextInput from 'ink-text-input';
-import { BranchInput } from '../components/BranchInput.js';
-import { Spinner } from '../components/Spinner.js';
-import { StatusMessage } from '../components/StatusMessage.js';
+import { BranchInput } from '../components/branch-input.js';
+import { Spinner } from '../components/spinner.js';
+import { StatusMessage } from '../components/status-message.js';
+import { CommandLayout } from '../components/command-layout.js';
 import { detectBaseBranch } from '../utils/branch-detector.js';
 import * as git from '../utils/git.js';
 import { START_WORK_TITLE } from '../constants.js';
-import { Header } from '../components/Header.js';
 
 type Step = 'check' | 'branch-input' | 'base-input' | 'executing' | 'done' | 'error';
 
@@ -102,17 +102,15 @@ export function StartWork({ onBack }: StartWorkProps) {
 
   if (step === 'error') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={START_WORK_TITLE} />
+      <CommandLayout title={START_WORK_TITLE}>
         <StatusMessage type="error" message={error} />
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'branch-input') {
     return (
-      <Box flexDirection="column">
-        <Header title={START_WORK_TITLE} />
+      <CommandLayout title={START_WORK_TITLE}>
         <Box marginBottom={1} alignItems='flex-start'>
           <Text color="green">Branch name: </Text>
           <TextInput
@@ -126,14 +124,13 @@ export function StartWork({ onBack }: StartWorkProps) {
             }}
           />
         </Box>
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'base-input') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={START_WORK_TITLE} />
+      <CommandLayout title={START_WORK_TITLE}>
         <BranchInput
           label="Base branch:"
           detectedBranch={detectedBase}
@@ -142,14 +139,13 @@ export function StartWork({ onBack }: StartWorkProps) {
             setStep('executing');
           }}
         />
-      </Box>
+      </CommandLayout>
     );
   }
 
   if (step === 'executing') {
     return (
-      <Box flexDirection="column" alignItems='center'>
-        <Header title={START_WORK_TITLE} />
+      <CommandLayout title={START_WORK_TITLE}>
         <Spinner label="Creating feature branch..." />
         <Box marginTop={1} alignItems='flex-start'>
           <Text dimColor>Branch: {branchName}</Text>
@@ -157,14 +153,13 @@ export function StartWork({ onBack }: StartWorkProps) {
         <Box alignItems='flex-start'>
           <Text dimColor>Base: {baseBranch}</Text>
         </Box>
-      </Box>
+      </CommandLayout>
     );
   }
 
   // step === 'done'
   return (
-    <Box flexDirection="column" alignItems='center'>
-      <Header title={START_WORK_TITLE} />
+    <CommandLayout title={START_WORK_TITLE}>
       <StatusMessage
         type="success"
         message="Feature branch created successfully!"
@@ -174,6 +169,6 @@ export function StartWork({ onBack }: StartWorkProps) {
           `Ready to commit: git add . && git commit && git push origin ${branchName}`,
         ]}
       />
-    </Box>
+    </CommandLayout>
   );
 }
