@@ -111,12 +111,13 @@ export function SyncPersonalProjects({ onBack }: SyncPersonalProjectsProps) {
         // Switch to personal account if needed
         if (currentUser === 'adrian-teammint-io' || currentUser === 'hoan@team-mint.io') {
           try {
-            await execa('gh', ['auth', 'login'], {
-              stdio: 'inherit',
-            });
+            await execa('gh', ['auth', 'switch', '--user', 'thanhhoan-v2']);
             logs.push('Switched to personal account');
+            setOutput([...logs]);
           } catch (switchErr: any) {
-            logs.push('Failed to switch account, continuing anyway');
+            logs.push(`Failed to switch account: ${switchErr.message || 'Unknown error'}`);
+            logs.push('Continuing with current account...');
+            setOutput([...logs]);
           }
         }
         // Generate commit message with date
