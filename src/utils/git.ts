@@ -135,6 +135,13 @@ export async function fetchPrune(): Promise<void> {
 }
 
 /**
+ * Pull from origin branch
+ */
+export async function pullOrigin(branchName: string): Promise<void> {
+  await execGit(['pull', 'origin', branchName]);
+}
+
+/**
  * Reset to origin branch (hard reset)
  */
 export async function resetToOrigin(branchName: string): Promise<void> {

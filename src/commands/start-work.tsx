@@ -74,9 +74,8 @@ export function StartWork({ onBack }: StartWorkProps) {
         // Checkout to base branch
         await git.checkoutBranch(baseBranch);
 
-        // Fetch and reset to ensure clean sync
-        await git.fetchOrigin();
-        await git.resetToOrigin(baseBranch);
+        // Pull latest from origin
+        await git.pullOrigin(baseBranch);
 
         // Create and checkout feature branch
         await git.createBranch(branchName);

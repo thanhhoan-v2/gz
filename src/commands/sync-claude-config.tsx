@@ -88,7 +88,7 @@ export function SyncClaudeConfig({ onBack }: SyncClaudeConfigProps) {
           // Create target directory if it doesn't exist
           await fs.mkdir(actualTarget, { recursive: true });
 
-          // Use rsync for reliable sync (excludes .git and node_modules)
+          // Use rsync for reliable sync (excludes .git, node_modules, and .claude.json)
           await execa('rsync', [
             '-av',
             '--delete',
@@ -96,6 +96,8 @@ export function SyncClaudeConfig({ onBack }: SyncClaudeConfigProps) {
             '.git',
             '--exclude',
             'node_modules',
+            '--exclude',
+            '.claude.json',
             `${source}/`,
             `${actualTarget}/`,
           ]);
@@ -151,6 +153,9 @@ export function SyncClaudeConfig({ onBack }: SyncClaudeConfigProps) {
                   : target}
               </Text>
             ))}
+            <Box marginTop={1}>
+              <Text dimColor>Excluding: .git, node_modules, .claude.json</Text>
+            </Box>
           </Box>
         )}
       </Box>
