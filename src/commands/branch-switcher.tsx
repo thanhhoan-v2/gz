@@ -114,7 +114,18 @@ export function BranchSwitcher({ onBack }: BranchSwitcherProps) {
 
     async function execute() {
       try {
+        // Checkout the branch
         await git.checkoutBranch(selectedBranch);
+
+        // Pull from origin
+        await git.pullOrigin(selectedBranch);
+
+        // If not develop or main, merge origin/develop
+        const isMainBranch = selectedBranch === 'develop' || selectedBranch === 'main';
+        if (!isMainBranch) {
+          await git.mergeBranch('origin/develop');
+        }
+
         addRecentBranch(selectedBranch);
         setStep('done');
         setTimeout(() => exit(), 1500);

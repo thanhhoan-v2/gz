@@ -8,7 +8,7 @@ import {detectBaseBranch} from '../utils/branch-detector.js';
 import * as git from '../utils/git.js';
 import { END_WORK_TITLE } from '../constants.js';
 
-type Step = 'check' | 'confirm' | 'base-input' | 'executing' | 'done' | 'error';
+type Step = 'check' | 'pushing' | 'wait-pr' | 'base-input' | 'executing' | 'done' | 'error';
 
 interface EndWorkProps {
   onBack?: () => void;
@@ -22,14 +22,15 @@ export function EndWork({onBack}: EndWorkProps) {
   const [detectedBase, setDetectedBase] = useState('');
   const [error, setError] = useState('');
   const [remoteDeleted, setRemoteDeleted] = useState(false);
+  const [prUrl, setPrUrl] = useState('');
 
   // Handle input and Esc/Backspace
   useInput((input, key) => {
     // Don't handle during loading/executing/done states
-    if (step === 'check' || step === 'executing' || step === 'done') return;
+    if (step === 'check' || step === 'pushing' || step === 'executing' || step === 'done') return;
 
-    // Confirmation input
-    if (step === 'confirm') {
+    // PR confirmation input
+    if (step === 'wait-pr') {
       if (input === 'y' || input === 'Y') {
         setStep('base-input');
       } else if (input === 'n' || input === 'N') {
@@ -76,7 +77,7 @@ export function EndWork({onBack}: EndWorkProps) {
         setCurrentBranch(status.currentBranch);
         const detected = detectBaseBranch();
         setDetectedBase(detected);
-        setStep('confirm');
+        setStep('pushing');
       } catch (err: any) {
         setError(err.message);
         setStep('error');
@@ -85,6 +86,28 @@ export function EndWork({onBack}: EndWorkProps) {
 
     check();
   }, []);
+
+  // Push feature branch to remote
+  useEffect(() => {
+    if (step !== 'pushing') return;
+
+    async function push() {
+      try {
+        await git.pushBranch(currentBranch);
+
+        // Generate PR URL
+        const url = await git.getGitHubPRUrl(detectedBase, currentBranch);
+        setPrUrl(url);
+
+        setStep('wait-pr');
+      } catch (err: any) {
+        setError(err.message);
+        setStep('error');
+      }
+    }
+
+    push();
+  }, [step, currentBranch, detectedBase]);
 
   // Execute finish workflow
   useEffect(() => {
@@ -133,22 +156,50 @@ export function EndWork({onBack}: EndWorkProps) {
     );
   }
 
-  if (step === 'confirm') {
+  if (step === 'pushing') {
+    return (
+      <CommandLayout title={END_WORK_TITLE}>
+        <Spinner label="Pushing feature branch to remote..." />
+        <Box marginTop={1} alignItems='flex-start'>
+          <Text dimColor>Branch: {currentBranch}</Text>
+        </Box>
+      </CommandLayout>
+    );
+  }
+
+  if (step === 'wait-pr') {
     return (
       <CommandLayout title={END_WORK_TITLE}>
         <Box marginBottom={1} alignItems='flex-start'>
           <Text>
-            Current branch: <Text color="yellow" bold>{currentBranch}</Text>
+            Branch pushed: <Text color="yellow" bold>{currentBranch}</Text>
           </Text>
         </Box>
         <Box marginBottom={1} alignItems='flex-start'>
-          <Text color="red">
-            This will delete the branch locally and remotely (if exists).
+          <Text color="cyan">
+            Waiting for PR creation and merge...
+          </Text>
+        </Box>
+        {prUrl && (
+          <Box marginBottom={1} alignItems='flex-start'>
+            <Text>
+              Create PR: <Text color="blue" underline>{prUrl}</Text>
+            </Text>
+          </Box>
+        )}
+        <Box marginBottom={1} alignItems='flex-start'>
+          <Text dimColor>
+            1. Create a Pull Request for this branch
+          </Text>
+        </Box>
+        <Box marginBottom={1} alignItems='flex-start'>
+          <Text dimColor>
+            2. Get it reviewed and merged
           </Text>
         </Box>
         <Box marginBottom={1} alignItems='flex-start'>
           <Text>
-            Are you sure? <Text color="green">(y/n)</Text>
+            Ready to continue? <Text color="green">(y/n)</Text>
           </Text>
         </Box>
       </CommandLayout>

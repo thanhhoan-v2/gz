@@ -142,6 +142,13 @@ export async function pullOrigin(branchName: string): Promise<void> {
 }
 
 /**
+ * Push current branch to origin with upstream tracking
+ */
+export async function pushBranch(branchName: string): Promise<void> {
+  await execGit(['push', '-u', 'origin', branchName]);
+}
+
+/**
  * Reset to origin branch (hard reset)
  */
 export async function resetToOrigin(branchName: string): Promise<void> {
@@ -193,6 +200,32 @@ export async function getRepoName(): Promise<string> {
 }
 
 /**
+ * Get repository owner from remote URL
+ */
+export async function getRepoOwner(): Promise<string> {
+  const url = await getRemoteUrl();
+  if (!url) return '';
+
+  // Match patterns like:
+  // git@github.com:owner/repo.git
+  // https://github.com/owner/repo.git
+  const match = url.match(/[:/]([^/]+)\/[^/]+?(?:\.git)?$/);
+  return match ? match[1] : '';
+}
+
+/**
+ * Generate GitHub PR creation URL
+ */
+export async function getGitHubPRUrl(baseBranch: string, headBranch: string): Promise<string> {
+  const owner = await getRepoOwner();
+  const repo = await getRepoName();
+
+  if (!owner || !repo) return '';
+
+  return `https://github.com/${owner}/${repo}/compare/${baseBranch}...${headBranch}?expand=1`;
+}
+
+/**
  * Get count of uncommitted changes (staged + unstaged)
  */
 export async function getUncommittedChangesCount(): Promise<number> {
@@ -205,4 +238,11 @@ export async function getUncommittedChangesCount(): Promise<number> {
   } catch {
     return 0;
   }
+}
+
+/**
+ * Merge a branch into the current branch
+ */
+export async function mergeBranch(branchName: string): Promise<void> {
+  await execGit(['merge', branchName]);
 }
