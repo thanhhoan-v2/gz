@@ -12,9 +12,10 @@ type Step = 'check' | 'pushing' | 'wait-pr' | 'base-input' | 'executing' | 'done
 
 interface EndWorkProps {
   onBack?: () => void;
+  has_pushed?: boolean;
 }
 
-export function EndWork({onBack}: EndWorkProps) {
+export function EndWork({onBack, has_pushed = false}: EndWorkProps) {
   const {exit} = useApp();
   const [step, setStep] = useState<Step>('check');
   const [currentBranch, setCurrentBranch] = useState('');
@@ -62,11 +63,6 @@ export function EndWork({onBack}: EndWorkProps) {
           return;
         }
 
-        if (git.isProtectedBranch(status.currentBranch)) {
-          setError(`Cannot finish from protected branch: ${status.currentBranch}`);
-          setStep('error');
-          return;
-        }
 
         if (status.hasUncommittedChanges) {
           setError('You have uncommitted changes. Please commit or stash them first.');
@@ -75,9 +71,21 @@ export function EndWork({onBack}: EndWorkProps) {
         }
 
         setCurrentBranch(status.currentBranch);
-        const detected = detectBaseBranch();
+        // If current branch is protected, use it as the base branch
+        // Otherwise, detect the appropriate base branch
+        const detected = git.isProtectedBranch(status.currentBranch)
+          ? status.currentBranch
+          : detectBaseBranch();
         setDetectedBase(detected);
-        setStep('pushing');
+
+        if (has_pushed) {
+          // Skip pushing, generate PR URL directly
+          const url = await git.getGitHubPRUrl(detected, status.currentBranch);
+          setPrUrl(url);
+          setStep('wait-pr');
+        } else {
+          setStep('pushing');
+        }
       } catch (err: any) {
         setError(err.message);
         setStep('error');
@@ -122,12 +130,18 @@ export function EndWork({onBack}: EndWorkProps) {
         await git.fetchOrigin();
         await git.resetToOrigin(baseBranch);
 
-        // Delete local branch
-        await git.deleteBranch(currentBranch, true);
+        // Only delete branch if it's not protected
+        if (!git.isProtectedBranch(currentBranch)) {
+          // Delete local branch
+          await git.deleteBranch(currentBranch, true);
 
-        // Delete remote branch
-        const deleted = await git.deleteRemoteBranch(currentBranch);
-        setRemoteDeleted(deleted);
+          // Delete remote branch
+          const deleted = await git.deleteRemoteBranch(currentBranch);
+          setRemoteDeleted(deleted);
+        } else {
+          // Don't delete protected branches
+          setRemoteDeleted(false);
+        }
 
         setStep('done');
         setTimeout(() => exit(), 2500);
@@ -222,11 +236,14 @@ export function EndWork({onBack}: EndWorkProps) {
   }
 
   if (step === 'executing') {
+    const isProtected = git.isProtectedBranch(currentBranch);
     return (
       <CommandLayout title={END_WORK_TITLE}>
-        <Spinner label="Finishing feature branch..." />
+        <Spinner label={isProtected ? "Finishing workflow..." : "Finishing feature branch..."} />
         <Box marginTop={1} alignItems='flex-start'>
-          <Text dimColor>Deleting: {currentBranch}</Text>
+          <Text dimColor>
+            {isProtected ? `Keeping branch: ${currentBranch}` : `Deleting: ${currentBranch}`}
+          </Text>
         </Box>
         <Box alignItems='flex-start'>
           <Text dimColor>Returning to: {baseBranch}</Text>
@@ -236,16 +253,21 @@ export function EndWork({onBack}: EndWorkProps) {
   }
 
   // step === 'done'
+  const isProtected = git.isProtectedBranch(currentBranch);
   return (
     <CommandLayout title={END_WORK_TITLE}>
       <StatusMessage
         type="success"
-        message="Feature branch workflow complete!"
+        message={isProtected ? "Workflow complete!" : "Feature branch workflow complete!"}
         details={[
-          `Deleted local branch: ${currentBranch}`,
-          remoteDeleted
-            ? `Deleted remote branch: origin/${currentBranch}`
-            : 'Remote branch not found or already deleted',
+          isProtected
+            ? `Kept protected branch: ${currentBranch}`
+            : `Deleted local branch: ${currentBranch}`,
+          isProtected
+            ? 'Protected branch preserved'
+            : remoteDeleted
+              ? `Deleted remote branch: origin/${currentBranch}`
+              : 'Remote branch not found or already deleted',
           `Now on ${baseBranch} with latest changes`,
         ]}
       />

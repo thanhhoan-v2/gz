@@ -15,8 +15,13 @@ import type { MenuAction, CommandType } from './types.js';
 import { MENU_ITEMS } from './constants.js';
 import { Header } from './components/header.js';
 
+// Parse command line arguments
+const args = process.argv.slice(2);
+const directCommand = args[0];
+const hasPushedFlag = args.includes('--has-pushed') || args.includes('--has_pushed');
+
 function App() {
-  const [selectedCommand, setSelectedCommand] = useState<CommandType | null>(null);
+  const [selectedCommand, setSelectedCommand] = useState<CommandType | null>(directCommand as CommandType || null);
   const [repoInfo, setRepoInfo] = useState<{ repoName: string; currentBranch: string; uncommittedCount: number } | null>(null);
 
   // Load repository info on mount and when returning to menu
@@ -82,7 +87,7 @@ function App() {
     case 'start-feature':
       return <StartWork onBack={handleBack} />;
     case 'end-work':
-      return <EndWork onBack={handleBack} />;
+      return <EndWork onBack={handleBack} has_pushed={hasPushedFlag} />;
     case 'switch-branch':
       return <BranchSwitcher onBack={handleBack} />;
     case 'sync-remote':

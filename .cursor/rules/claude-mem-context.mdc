@@ -1,0 +1,76 @@
+---
+alwaysApply: true
+description: "Claude-mem context from past sessions (auto-updated)"
+---
+
+# Memory Context from Past Sessions
+
+The following context is from claude-mem, a persistent memory system that tracks your coding sessions.
+
+# [gz] recent context
+
+**Legend:** 🎯 session-request | 🔴 bugfix | 🟣 feature | 🔄 refactor | ✅ change | 🔵 discovery | ⚖️  decision
+
+💡 **Column Key**:
+- **Read**: Tokens to read this observation (cost to learn it now)
+- **Work**: Tokens spent on work that produced this record (🔍 research, 🛠️ building, ⚖️  deciding)
+
+💡 **Context Index:** This semantic index (titles, types, files, tokens) is usually sufficient to understand past work.
+
+When you need implementation details, rationale, or debugging context:
+- Use the mem-search skill to fetch full observations on-demand
+- Critical types (🔴 bugfix, ⚖️ decision) often need detailed fetching
+- Trust this index over re-reading code for past decisions and learnings
+
+📊 **Context Economics**:
+- Loading: 3 observations (771 tokens to read)
+- Work investment: 9,360 tokens spent on research, building, and decisions
+- Your savings: 8,589 tokens (92% reduction from reuse)
+
+### Dec 16, 2025
+
+**General**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+
+**#642** 9:26 AM 🔵 **Git utility functions available in project**
+
+The project has a comprehensive git utility module with functions for checkout, pull, reset, and stash operations. Key utilities include checkoutBranch() for switching branches, pullOrigin() for pulling from origin, and resetToOrigin() for hard resets. The isProtectedBranch() function identifies main, master, and develop as protected branches. These utilities will form the foundation for implementing the branch-switcher logic that requires different behavior for protected branches (develop/main) versus feature branches.
+
+Read: ~299, Work: 🔍 2,613
+
+**src/utils/git.ts**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+
+**#643** 9:27 AM 🟣 **Added mergeBranch() git utility function**
+
+Added a new mergeBranch() utility function to src/utils/git.ts that merges a specified branch into the current branch. This function is needed for the branch-switcher feature to handle merging origin/develop into feature branches during branch switching operations. The function follows the same pattern as other git utilities in the file, using the execGit() wrapper for safe command execution.
+
+Read: ~196, Work: 🛠️ 3,156
+
+**src/commands/branch-switcher.tsx**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+
+**#644** 9:27 AM 🟣 **Implemented conditional branch switching logic in branch-switcher**
+
+Implemented the requested branch switching logic in src/commands/branch-switcher.tsx. The execution flow now checks if the target branch is "develop" or "main" (protected branches). For protected branches, it performs checkout followed by pull origin. For feature branches (all others), it adds an additional merge of origin/develop after the pull. This ensures feature branches stay synchronized with the develop branch. The implementation uses the isMainBranch boolean check to conditionally execute the merge operation.
+
+Read: ~276, Work: 🛠️ 3,591
+
+**🎯 #S70** Modify branch-switcher.tsx to implement conditional branch switching: checkout and pull origin for develop/main branches, or checkout, pull origin, and merge origin/develop for feature branches (Dec 16 at 9:28 AM)
+
+**Investigated**: Examined src/utils/git.ts to understand available git utility functions and their patterns. Reviewed src/commands/branch-switcher.tsx to understand current branch switching implementation and execution flow.
+
+**Learned**: Project has comprehensive git utilities including checkoutBranch(), pullOrigin(), resetToOrigin(), stashChanges(), and stashPop(). The branch-switcher uses a step-based state machine (loading → search → executing → done/error). Protected branches (main, master, develop) are identified via isProtectedBranch() function. Git operations use execGit() wrapper for safe command execution with error handling.
+
+**Completed**: Added mergeBranch() function to src/utils/git.ts that executes git merge commands. Modified src/commands/branch-switcher.tsx execute() function to implement the new workflow: checkout → pull origin → conditional merge of origin/develop (only for non-protected branches). Logic checks if branch is "develop" or "main" and skips merge for those branches. Error handling preserves existing error display mechanism for merge conflicts and pull failures.
+
+**Next Steps**: Feature implementation complete. Ready for testing via pnpm run install-global to verify branch switching behaves correctly for both protected branches (develop/main) and feature branches with merge logic.
+
+
+💰 Access 9k tokens of past research & decisions for just 771t. Use the mem-search skill to access memories by ID instead of re-reading files.
+
+---
+*Updated after last session. Use claude-mem's MCP search tools for more detailed queries.*
