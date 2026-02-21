@@ -36,4 +36,5 @@ export type CommandType =
   | 'bring-changes'
   | 'sync-claude-config'
   | 'sync-personal-projects'
-  | 'commit-claude';
+  | 'commit-claude'
+  | 'export-claude-mem';

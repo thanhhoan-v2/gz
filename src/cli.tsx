@@ -10,6 +10,7 @@ import { BringChanges } from './commands/bring-changes.js';
 import { SyncClaudeConfig } from './commands/sync-claude-config.js';
 import { SyncPersonalProjects } from './commands/sync-personal-projects.js';
 import { CommitClaude } from './commands/commit-claude.js';
+import { ExportClaudeMem } from './commands/export-claude-mem.js';
 import * as git from './utils/git.js';
 import type { MenuAction, CommandType } from './types.js';
 import { MENU_ITEMS } from './constants.js';
@@ -100,6 +101,8 @@ function App() {
       return <SyncClaudeConfig onBack={handleBack} />;
     case 'sync-personal-projects':
       return <SyncPersonalProjects onBack={handleBack} />;
+    case 'export-claude-mem':
+      return <ExportClaudeMem onBack={handleBack} />;
     default:
       return <Text>Unknown command</Text>;
   }
